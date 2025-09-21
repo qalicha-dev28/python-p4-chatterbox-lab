@@ -1,34 +1,14 @@
-#!/usr/bin/env python3
+from app import app, db, Message
 
-from random import choice as rc
+with app.app_context():
+    db.drop_all()
+    db.create_all()
 
-from faker import Faker
+    m1 = Message(body="Hello 👋", username="alice")
+    m2 = Message(body="Hi there!", username="bob")
+    m3 = Message(body="Welcome to Chatterbox 💬", username="carol")
 
-from app import app
-from models import db, Message
+    db.session.add_all([m1, m2, m3])
+    db.session.commit()
 
-fake = Faker()
-
-usernames = [fake.first_name() for i in range(4)]
-if "Duane" not in usernames:
-    usernames.append("Duane")
-
-def make_messages():
-
-    Message.query.delete()
-    
-    messages = []
-
-    for i in range(20):
-        message = Message(
-            body=fake.sentence(),
-            username=rc(usernames),
-        )
-        messages.append(message)
-
-    db.session.add_all(messages)
-    db.session.commit()        
-
-if __name__ == '__main__':
-    with app.app_context():
-        make_messages()
+    print("✅ Seeded 3 messages")
